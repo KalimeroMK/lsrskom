@@ -1,0 +1,47 @@
+version: '3'
+networks:
+  laravel:
+services:
+  mysql:
+    platform: "linux/x86_64"
+    image: library/mysql:5.7
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - laravel
+  php:
+    container_name: php
+    image: kalimeromk/apache:7.4
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - laravel
+  app:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    links:
+      - mysql
+    ports:
+      - 8085:80
+    volumes:
+      - /sessions
+    networks:
+      - laravel
